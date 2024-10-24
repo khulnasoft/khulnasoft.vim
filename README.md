@@ -1,6 +1,4 @@
-<p align="center">
-  <img width="300" alt="Khulnasoft" src="khulnasoft.svg"/>
-</p>
+# KhulnaSoft.vim
 
 ---
 
@@ -15,8 +13,6 @@
 [![JetBrains](https://img.shields.io/jetbrains/plugin/d/20540?label=JetBrains)](https://plugins.jetbrains.com/plugin/20540-khulnasoft/)
 [![Open VSX](https://img.shields.io/open-vsx/dt/Khulnasoft/khulnasoft?label=Open%20VSX)](https://open-vsx.org/extension/Khulnasoft/khulnasoft)
 [![Google Chrome](https://img.shields.io/chrome-web-store/users/hobjkcpmjhlegmobgonaagepfckjkceh?label=Google%20Chrome&logo=googlechrome&logoColor=FFFFFF)](https://chrome.google.com/webstore/detail/khulnasoft/hobjkcpmjhlegmobgonaagepfckjkceh)
-
-# khulnasoft.vim
 
 _Free, ultrafast Copilot alternative for Vim and Neovim_
 
