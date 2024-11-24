@@ -25,6 +25,10 @@ if !exists('s:editor_version')
 endif
 
 let s:server_port = v:null
+if khulnasoft#util#IsUsingRemoteChat()
+  let s:server_port = 42100
+endif
+
 let g:khulnasoft_server_job = v:null
 
 function! s:OnExit(result, status, on_complete_cb) abort
@@ -266,17 +270,18 @@ function! s:ActuallyStart() abort
   let chat_ports = get(g:, 'khulnasoft_port_config', {})
   let manager_dir = tempname() . '/khulnasoft/manager'
   call mkdir(manager_dir, 'p')
-
   let args = [
         \ s:bin,
         \ '--api_server_url', get(config, 'api_url', 'https://server.khulnasoft.com'),
-        \ '--manager_dir', manager_dir,
         \ '--enable_local_search', '--enable_index_service', '--search_max_workspace_file_count', '5000',
         \ '--enable_chat_web_server', '--enable_chat_client'
         \ ]
   if has_key(config, 'api_url') && !empty(config.api_url)
     let args += ['--enterprise_mode']
     let args += ['--portal_url', get(config, 'portal_url', 'https://khulnasoft.example.com')]
+  endif
+  if !khulnasoft#util#IsUsingRemoteChat()
+    let args += ['--manager_dir', manager_dir]
   endif
   " If either of these is set, only one vim window (with any number of buffers) will work with Khulnasoft.
   " Opening other vim windows won't be able to use Khulnasoft features.
@@ -298,6 +303,8 @@ function! s:ActuallyStart() abort
                 \ 'err_cb': { channel, data -> khulnasoft#log#Info('[SERVER] ' . data) },
                 \ })
   endif
-  call timer_start(500, function('s:FindPort', [manager_dir]), {'repeat': -1})
+  if !khulnasoft#util#IsUsingRemoteChat()
+    call timer_start(500, function('s:FindPort', [manager_dir]), {'repeat': -1})
+  endif
   call timer_start(5000, function('s:SendHeartbeat', []), {'repeat': -1})
 endfunction

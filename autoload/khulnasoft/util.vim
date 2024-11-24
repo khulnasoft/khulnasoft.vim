@@ -8,3 +8,8 @@ function! khulnasoft#util#HasSupportedVersion() abort
 
   return s:nvim_virt_text_support || s:vim_virt_text_support
 endfunction
+
+function! khulnasoft#util#IsUsingRemoteChat() abort
+  let chat_ports = get(g:, 'khulnasoft_port_config', {})
+  return has_key(chat_ports, 'chat_client') && !empty(chat_ports.chat_client) && has_key(chat_ports, 'web_server') && !empty(chat_ports.web_server)
+endfunction
