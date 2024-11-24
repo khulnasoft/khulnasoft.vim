@@ -1,7 +1,5 @@
 # KhulnaSoft.vim
 
----
-
 [![Discord](https://img.shields.io/discord/1027685395649015980?label=community&color=5865F2&logo=discord&logoColor=FFFFFF)](https://discord.gg/3XFf78nAx5)
 [![Twitter Follow](https://img.shields.io/badge/style--blue?style=social&logo=twitter&label=Follow%20%40khulnasoftdev)](https://twitter.com/intent/follow?screen_name=khulnasoftdev)
 ![License](https://img.shields.io/github/license/KhulnaSoft/khulnasoft.vim)
