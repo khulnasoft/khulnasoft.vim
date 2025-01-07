@@ -200,7 +200,7 @@ function! khulnasoft#server#Start(...) abort
       if has_key(config, 'portal_url') && !empty(config.portal_url)
         let base_url = config.portal_url
       else
-        let base_url = 'https://github.com/KhulnaSoft/khulnasoft/releases/download'
+        let base_url = 'https://github.com/KhulnaSoft/khulnasoft-release/releases/download'
       endif
       let base_url = substitute(base_url, '/\+$', '', '')
       let url = base_url . '/language-server-v' . s:language_server_version . '/language_server_' . bin_suffix . '.gz'
