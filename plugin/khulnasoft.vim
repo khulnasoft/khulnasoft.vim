@@ -3,12 +3,15 @@ if exists('g:loaded_khulnasoft')
 endif
 let g:loaded_khulnasoft = 1
 
+" Define commands
 command! -nargs=? -complete=customlist,khulnasoft#command#Complete Khulnasoft exe khulnasoft#command#Command(<q-args>)
 
+" Check for supported version
 if !khulnasoft#util#HasSupportedVersion()
-    finish
+  finish
 endif
 
+" Set highlight styles
 function! s:SetStyle() abort
   if &t_Co == 256
     hi def KhulnasoftSuggestion guifg=#808080 ctermfg=244
@@ -18,32 +21,32 @@ function! s:SetStyle() abort
   hi def link KhulnasoftAnnotation Normal
 endfunction
 
+" Map tab key
 function! s:MapTab() abort
   if !get(g:, 'khulnasoft_no_map_tab', v:false) && !get(g:, 'khulnasoft_disable_bindings')
     imap <script><silent><nowait><expr> <Tab> khulnasoft#Accept()
   endif
 endfunction
 
+" Define autocommands
 augroup khulnasoft
   autocmd!
   autocmd InsertEnter,CursorMovedI,CompleteChanged * call khulnasoft#DebouncedComplete()
-  autocmd BufEnter     * if khulnasoft#Enabled()|call khulnasoft#command#StartLanguageServer()|endif
-  autocmd BufEnter     * if mode() =~# '^[iR]'|call khulnasoft#DebouncedComplete()|endif
-  autocmd InsertLeave  * call khulnasoft#Clear()
-  autocmd BufLeave     * if mode() =~# '^[iR]'|call khulnasoft#Clear()|endif
-
+  autocmd BufEnter * if khulnasoft#Enabled() | call khulnasoft#command#StartLanguageServer() | endif
+  autocmd BufEnter * if mode() =~# '^[iR]' | call khulnasoft#DebouncedComplete() | endif
+  autocmd InsertLeave * call khulnasoft#Clear()
+  autocmd BufLeave * if mode() =~# '^[iR]' | call khulnasoft#Clear() | endif
   autocmd ColorScheme,VimEnter * call s:SetStyle()
-  " Map tab using vim enter so it occurs after all other sourcing.
-  autocmd VimEnter             * call s:MapTab()
-  autocmd VimLeave             * call khulnasoft#ServerLeave()
+  autocmd VimEnter * call s:MapTab()
+  autocmd VimLeave * call khulnasoft#ServerLeave()
 augroup END
 
-
-imap <Plug>(khulnasoft-dismiss)     <Cmd>call khulnasoft#Clear()<CR>
-imap <Plug>(khulnasoft-next)     <Cmd>call khulnasoft#CycleCompletions(1)<CR>
-imap <Plug>(khulnasoft-next-or-complete)     <Cmd>call khulnasoft#CycleOrComplete()<CR>
+" Define key mappings
+imap <Plug>(khulnasoft-dismiss) <Cmd>call khulnasoft#Clear()<CR>
+imap <Plug>(khulnasoft-next) <Cmd>call khulnasoft#CycleCompletions(1)<CR>
+imap <Plug>(khulnasoft-next-or-complete) <Cmd>call khulnasoft#CycleOrComplete()<CR>
 imap <Plug>(khulnasoft-previous) <Cmd>call khulnasoft#CycleCompletions(-1)<CR>
-imap <Plug>(khulnasoft-complete)  <Cmd>call khulnasoft#Complete()<CR>
+imap <Plug>(khulnasoft-complete) <Cmd>call khulnasoft#Complete()<CR>
 
 if !get(g:, 'khulnasoft_disable_bindings')
   if empty(mapcheck('<C-]>', 'i'))
@@ -68,55 +71,58 @@ endif
 
 call s:SetStyle()
 
+" Update helptags if necessary
 let s:dir = expand('<sfile>:h:h')
 if getftime(s:dir . '/doc/khulnasoft.txt') > getftime(s:dir . '/doc/tags')
   silent! execute 'helptags' fnameescape(s:dir . '/doc')
 endif
 
-function! KhulnasoftEnable()  " Enable Khulnasoft if it is disabled
+" Define enable/disable functions
+function! KhulnasoftEnable()
   let g:khulnasoft_enabled = v:true
   call khulnasoft#command#StartLanguageServer()
-endfun
+endfunction
 
 command! KhulnasoftEnable :silent! call KhulnasoftEnable()
 
-function! KhulnasoftDisable() " Disable Khulnasoft altogether
+function! KhulnasoftDisable()
   let g:khulnasoft_enabled = v:false
-endfun
+endfunction
 
 command! KhulnasoftDisable :silent! call KhulnasoftDisable()
 
 function! KhulnasoftToggle()
   if exists('g:khulnasoft_enabled') && g:khulnasoft_enabled == v:false
-      call KhulnasoftEnable()
+    call KhulnasoftEnable()
   else
-      call KhulnasoftDisable()
+    call KhulnasoftDisable()
   endif
 endfunction
 
 command! KhulnasoftToggle :silent! call KhulnasoftToggle()
 
-function! KhulnasoftManual() " Disable the automatic triggering of completions
+function! KhulnasoftManual()
   let g:khulnasoft_manual = v:true
-endfun
+endfunction
 
 command! KhulnasoftManual :silent! call KhulnasoftManual()
 
-function! KhulnasoftAuto()  " Enable the automatic triggering of completions
+function! KhulnasoftAuto()
   let g:khulnasoft_manual = v:false
-endfun
+endfunction
 
 command! KhulnasoftAuto :silent! call KhulnasoftAuto()
 
 function! KhulnasoftChat()
   call khulnasoft#Chat()
-endfun
+endfunction
 
 command! KhulnasoftChat :silent! call KhulnasoftChat()
 
-:amenu Plugin.Khulnasoft.Enable\ \Khulnasoft\ \(\:KhulnasoftEnable\) :call KhulnasoftEnable() <Esc>
-:amenu Plugin.Khulnasoft.Disable\ \Khulnasoft\ \(\:KhulnasoftDisable\) :call KhulnasoftDisable() <Esc>
-:amenu Plugin.Khulnasoft.Manual\ \Khulnasoft\ \AI\ \Autocompletion\ \(\:KhulnasoftManual\) :call KhulnasoftManual() <Esc>
-:amenu Plugin.Khulnasoft.Automatic\ \Khulnasoft\ \AI\ \Completion\ \(\:KhulnasoftAuto\) :call KhulnasoftAuto() <Esc>
-:amenu Plugin.Khulnasoft.Toggle\ \Khulnasoft\ \(\:KhulnasoftToggle\) :call KhulnasoftToggle() <Esc>
-:amenu Plugin.Khulnasoft.Chat\ \Khulnasoft\ \(\:KhulnasoftChat\) :call KhulnasoftChat() <Esc>
+" Define menu items
+amenu Plugin.Khulnasoft.Enable\ \Khulnasoft\ \(\:KhulnasoftEnable\) :call KhulnasoftEnable() <Esc>
+amenu Plugin.Khulnasoft.Disable\ \Khulnasoft\ \(\:KhulnasoftDisable\) :call KhulnasoftDisable() <Esc>
+amenu Plugin.Khulnasoft.Manual\ \Khulnasoft\ \AI\ \Autocompletion\ \(\:KhulnasoftManual\) :call KhulnasoftManual() <Esc>
+amenu Plugin.Khulnasoft.Automatic\ \Khulnasoft\ \AI\ \Completion\ \(\:KhulnasoftAuto\) :call KhulnasoftAuto() <Esc>
+amenu Plugin.Khulnasoft.Toggle\ \Khulnasoft\ \(\:KhulnasoftToggle\) :call KhulnasoftToggle() <Esc>
+amenu Plugin.Khulnasoft.Chat\ \Khulnasoft\ \(\:KhulnasoftChat\) :call KhulnasoftChat() <Esc>

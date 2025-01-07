@@ -17,9 +17,9 @@ if !exists('s:editor_version')
     let minor = v:version % 100
     if exists('v:versionlong')
       let patch = printf('%04d', v:versionlong % 1000)
-      let s:ide_version =  major . '.' . minor . '.' . patch
+      let s:ide_version = major . '.' . minor . '.' . patch
     else
-      let s:ide_version =  major . '.' . minor
+      let s:ide_version = major . '.' . minor
     endif
   endif
 endif
@@ -32,22 +32,18 @@ endif
 let g:khulnasoft_server_job = v:null
 
 function! s:OnExit(result, status, on_complete_cb) abort
-  let did_close = has_key(a:result, 'closed')
-  if did_close
+  if has_key(a:result, 'closed')
     call remove(a:result, 'closed')
     call a:on_complete_cb(a:result.out, a:result.err, a:status)
   else
-    " Wait until we receive OnClose, and call on_complete_cb then.
     let a:result.exit_status = a:status
   endif
 endfunction
 
 function! s:OnClose(result, on_complete_cb) abort
-  let did_exit = has_key(a:result, 'exit_status')
-  if did_exit
+  if has_key(a:result, 'exit_status')
     call a:on_complete_cb(a:result.out, a:result.err, a:result.exit_status)
   else
-    " Wait until we receive OnExit, and call on_complete_cb then.
     let a:result.closed = v:true
   endif
 endfunction
@@ -58,10 +54,10 @@ endfunction
 function! khulnasoft#server#RequestMetadata() abort
   return {
         \ 'api_key': khulnasoft#command#ApiKey(),
-        \ 'ide_name':  s:ide,
-        \ 'ide_version':  s:ide_version,
+        \ 'ide_name': s:ide,
+        \ 'ide_version': s:ide_version,
         \ 'extension_name': 'vim',
-        \ 'extension_version':  s:language_server_version,
+        \ 'extension_version': s:language_server_version,
         \ }
 endfunction
 
@@ -69,16 +65,12 @@ function! khulnasoft#server#Request(type, data, ...) abort
   if s:server_port is# v:null
     throw 'Server port has not been properly initialized.'
   endif
-  let uri = 'http://127.0.0.1:' . s:server_port .
-      \ '/exa.language_server_pb.LanguageServerService/' . a:type
+  let uri = 'http://127.0.0.1:' . s:server_port . '/exa.language_server_pb.LanguageServerService/' . a:type
   let data = json_encode(a:data)
-  let args = [
-              \ 'curl', uri,
-              \ '--header', 'Content-Type: application/json',
-              \ '-d@-'
-              \ ]
+  let args = ['curl', uri, '--header', 'Content-Type: application/json', '-d@-']
   let result = {'out': [], 'err': []}
   let ExitCallback = a:0 && !empty(a:1) ? a:1 : function('s:NoopCallback')
+
   if has('nvim')
     let jobid = jobstart(args, {
                 \ 'on_stdout': { channel, data, t -> add(result.out, join(data, "\n")) },
@@ -123,17 +115,13 @@ function! s:RequestServerStatus() abort
 endfunction
 
 function! s:HandleGetStatusResponse(out, err, status) abort
-  " Check if the request was successful
   if a:status == 0
-    " Parse the JSON response
     let response = json_decode(join(a:out, "\n"))
     let status = get(response, 'status', {})
-    " Check if there is a message in the response and echo it
     if has_key(status, 'message') && !empty(status.message)
       echom status.message
     endif
   else
-    " Handle error if the status is not 0 or if there is stderr output
     call khulnasoft#log#Error(join(a:err, "\n"))
   endif
 endfunction
@@ -154,6 +142,7 @@ function! khulnasoft#server#Start(...) abort
     call s:ActuallyStart()
     return
   endif
+
   let user_defined_os = get(g:, 'khulnasoft_os', '')
   let user_defined_arch = get(g:, 'khulnasoft_arch', '')
 
@@ -164,6 +153,7 @@ function! khulnasoft#server#Start(...) abort
     silent let os = substitute(system('uname'), '\n', '', '')
     silent let arch = substitute(system('uname -m'), '\n', '', '')
   endif
+
   let is_arm = stridx(arch, 'arm') == 0 || stridx(arch, 'aarch64') == 0
 
   if empty(os)
@@ -210,7 +200,7 @@ function! khulnasoft#server#Start(...) abort
       if has_key(config, 'portal_url') && !empty(config.portal_url)
         let base_url = config.portal_url
       else
-        let base_url = 'https://github.com/KhulnaSoft/khulnasoft/releases/download'
+        let base_url = 'https://github.com/KhulnaSoft/khulnasoft-release/releases/download'
       endif
       let base_url = substitute(base_url, '/\+$', '', '')
       let url = base_url . '/language-server-v' . s:language_server_version . '/language_server_' . bin_suffix . '.gz'
@@ -239,7 +229,8 @@ function! s:UnzipAndStart(status) abort
     let old_shellredir = &shellredir
     " Switch to powershell.
     let &shell = 'powershell'
-    set shellquote= shellpipe=\| shellxquote=
+    set shellquote=\"
+    set shellpipe=\|
     set shellcmdflag=-NoLogo\ -NoProfile\ -ExecutionPolicy\ RemoteSigned\ -Command
     set shellredir=\|\ Out-File\ -Encoding\ UTF8
     call system('& { . ' . shellescape(s:root . '/powershell/gzip.ps1') . '; Expand-File ' . shellescape(s:bin . '.gz') . ' }')
@@ -283,8 +274,6 @@ function! s:ActuallyStart() abort
   if !khulnasoft#util#IsUsingRemoteChat()
     let args += ['--manager_dir', manager_dir]
   endif
-  " If either of these is set, only one vim window (with any number of buffers) will work with Khulnasoft.
-  " Opening other vim windows won't be able to use Khulnasoft features.
   if has_key(chat_ports, 'web_server') && !empty(chat_ports.web_server)
     let args += ['--chat_web_server_port', chat_ports.web_server]
   endif

@@ -11,21 +11,13 @@ function! khulnasoft#command#BrowserCommand() abort
 endfunction
 
 function! khulnasoft#command#XdgConfigDir() abort
-  let config_dir = $XDG_CONFIG_HOME
-  if empty(config_dir)
-    let config_dir = $HOME . '/.config'
-  endif
+  let config_dir = get($, 'XDG_CONFIG_HOME', $HOME . '/.config')
   return config_dir . '/khulnasoft'
 endfunction
 
 function! khulnasoft#command#HomeDir() abort
-  let data_dir = $XDG_DATA_HOME
-  if empty(data_dir)
-    let data_dir = $HOME . '/.khulnasoft'
-  else
-    let data_dir = data_dir . '/.khulnasoft'
-  endif
-  return data_dir
+  let data_dir = get($, 'XDG_DATA_HOME', $HOME . '/khulnasoft')
+  return data_dir . '/khulnasoft'
 endfunction
 
 function! khulnasoft#command#LoadConfig(dir) abort
@@ -36,7 +28,6 @@ function! khulnasoft#command#LoadConfig(dir) abort
       return json_decode(contents)
     endif
   endif
-
   return {}
 endfunction
 
@@ -46,26 +37,22 @@ let s:commands = {}
 
 function! s:commands.Auth(...) abort
   if !khulnasoft#util#HasSupportedVersion()
-    if has('nvim')
-      let min_version = 'NeoVim 0.6'
-    else
-      let min_version = 'Vim 9.0.0185'
-    endif
+    let min_version = has('nvim') ? 'NeoVim 0.6' : 'Vim 9.0.0185'
     echoerr 'This version of Vim is unsupported. Install ' . min_version . ' or greater to use Khulnasoft.'
     return
   endif
 
   let config = get(g:, 'khulnasoft_server_config', {})
   let portal_url = get(config, 'portal_url', 'https://www.khulnasoft.com')
-
   let url = portal_url . '/profile?response_type=token&redirect_uri=vim-show-auth-token&state=a&scope=openid%20profile%20email&redirect_parameters_type=query'
   let browser = khulnasoft#command#BrowserCommand()
   let opened_browser = v:false
+
   if !empty(browser)
     echomsg 'Navigating to ' . url
     try
-      call system(browser . ' ' . '"' . url . '"')
-      if v:shell_error is# 0
+      call system(browser . ' ' . shellescape(url))
+      if v:shell_error == 0
         let opened_browser = v:true
       endif
     catch
@@ -84,32 +71,23 @@ function! s:commands.Auth(...) abort
   call inputrestore()
   let tries = 0
 
-  if has_key(config, 'api_url') && !empty(config.api_url)
-    let register_user_url = config.api_url . '/exa.seat_management_pb.SeatManagementService/RegisterUser'
-  else
-    let register_user_url = 'https://api.khulnasoft.com/register_user/'
-  endif
+  let register_user_url = get(config, 'api_url', 'https://api.khulnasoft.com') . '/exa.seat_management_pb.SeatManagementService/RegisterUser'
 
   while empty(api_key) && tries < 3
-    let command = 'curl -sS ' . register_user_url . ' ' .
-          \ '--header "Content-Type: application/json" ' .
-          \ '--data ' . shellescape(json_encode({'firebase_id_token': auth_token}))
+    let command = 'curl -sS ' . register_user_url . ' --header "Content-Type: application/json" --data ' . shellescape(json_encode({'firebase_id_token': auth_token}))
     let response = system(command)
-    let curl_ssl_error = 'The revocation function was unable to check revocation '
-          \ . 'for the certificate.'
-    if has('win32') && response=~curl_ssl_error
-        call inputsave()
-        let useNoSsl = input('For Windows systems behind a corporate proxy there '
-              \ . 'may be trouble verifying the SSL certificates. '
-              \ . 'Would you like to try auth without checking SSL certificate revocation? (y/n): ')
-        call inputrestore()
-        if useNoSsl ==? 'y'
-            let command = 'curl --ssl-no-revoke -sS ' . register_user_url . ' ' .
-                  \ '--header "Content-Type: application/json" ' .
-                  \ '--data ' . shellescape(json_encode({'firebase_id_token': auth_token}))
-            let response = system(command)
-        endif
+    let curl_ssl_error = 'The revocation function was unable to check revocation for the certificate.'
+
+    if has('win32') && response =~ curl_ssl_error
+      call inputsave()
+      let useNoSsl = input('For Windows systems behind a corporate proxy there may be trouble verifying the SSL certificates. Would you like to try auth without checking SSL certificate revocation? (y/n): ')
+      call inputrestore()
+      if useNoSsl ==? 'y'
+        let command = 'curl --ssl-no-revoke -sS ' . register_user_url . ' --header "Content-Type: application/json" --data ' . shellescape(json_encode({'firebase_id_token': auth_token}))
+        let response = system(command)
+      endif
     endif
+
     let res = json_decode(response)
     let api_key = get(res, 'api_key', '')
     if empty(api_key)
@@ -118,7 +96,7 @@ function! s:commands.Auth(...) abort
       let auth_token = inputsecret('Invalid token, please try again: ')
       call inputrestore()
     endif
-    let tries = tries + 1
+    let tries += 1
   endwhile
 
   if !empty(api_key)
@@ -137,7 +115,7 @@ function! s:commands.Auth(...) abort
   endif
 endfunction
 
-function s:commands.Chat(...) abort
+function! s:commands.Chat(...) abort
   call khulnasoft#Chat()
 endfunction
 
@@ -149,7 +127,6 @@ function! s:commands.DisableBuffer(...) abort
   let b:khulnasoft_enabled = 0
 endfunction
 
-" Run khulnasoft server only if its not already started
 function! khulnasoft#command#StartLanguageServer() abort
   if !get(g:, 'khulnasoft_server_started', v:false)
     call timer_start(0, function('khulnasoft#server#Start'))
@@ -168,15 +145,15 @@ function! s:commands.EnableBuffer(...) abort
 endfunction
 
 function! s:commands.Toggle(...) abort
-  if exists('g:khulnasoft_enabled') && g:khulnasoft_enabled == v:false
-      call s:commands.Enable()
+  if exists('g:khulnasoft_enabled') && !g:khulnasoft_enabled
+    call s:commands.Enable()
   else
-      call s:commands.Disable()
+    call s:commands.Disable()
   endif
 endfunction
 
 function! khulnasoft#command#ApiKey() abort
-  if s:api_key == ''
+  if empty(s:api_key)
     echom 'Khulnasoft: No API key found; maybe you need to run `:Khulnasoft Auth`?'
   endif
   return s:api_key
@@ -194,9 +171,5 @@ function! khulnasoft#command#Command(arg) abort
     return 'echoerr ' . string("Khulnasoft: command '" . string(cmd) . "' not found")
   endif
   let res = s:commands[cmd](arg)
-  if type(res) == v:t_string
-    return res
-  else
-    return ''
-  endif
+  return type(res) == v:t_string ? res : ''
 endfunction
