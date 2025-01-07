@@ -11,17 +11,27 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
       - name: Get version from file
-        id: version
-        run: echo ::set-output name=version::$(grep -oP "(?<=s:language_server_version = ')[^']+" autoload/khulnasoft/server.vim)
-      - name: Check if tag exists
-        id: add_tag
+        id: get_version
         run: |
-          if git rev-parse ${{ steps.version.outputs.version }} >/dev/null 2>&1; then
-            echo "Tag already exists"
+          version=$(grep -oP "(?<=s:language_server_version = ')[^']+" autoload/khulnasoft/server.vim)
+          echo "version=$version" >> $GITHUB_ENV
+
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          if git rev-parse "v${{ env.version }}" >/dev/null 2>&1; then
+            echo "Tag v${{ env.version }} already exists"
             exit 0
           else
-            echo "Tag doesn't exist"
-            git tag ${{ steps.version.outputs.version }} && git push origin ${{ steps.version.outputs.version }}
+            echo "Tag v${{ env.version }} doesn't exist"
           fi
+        shell: bash
+
+      - name: Create and push tag
+        if: steps.check_tag.outputs.result == 'Tag v${{ env.version }} doesn\'t exist'
+        run: |
+          git tag "v${{ env.version }}"
+          git push origin "v${{ env.version }}"
         shell: bash

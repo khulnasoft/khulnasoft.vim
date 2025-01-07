@@ -21,7 +21,6 @@ let s:language_enum = {
       \ 'julia': 19,
       \ 'kotlin': 20,
       \ 'latex': 21,
-      \ 'tex': 21,
       \ 'less': 22,
       \ 'lua': 23,
       \ 'makefile': 24,

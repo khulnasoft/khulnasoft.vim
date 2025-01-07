@@ -3,7 +3,8 @@ if exists('g:loaded_khulnasoft_log')
 endif
 let g:loaded_khulnasoft_log = 1
 
-if !exists('s:logfile')
+let s:logfile = ''
+if !exists('s:logfile') || empty(s:logfile)
   let s:logfile = expand(get(g:, 'khulnasoft_log_file', tempname() . '-khulnasoft.log'))
   try
     call writefile([], s:logfile)
