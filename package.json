@@ -1,0 +1,9 @@
+{
+  "name": "khulnasoft.vim",
+  "description": "Bring your favourite DevSecOps platform to your fingertips through a Vim plugin.",
+  "dependencies": {
+    "@khulnasoft/khulnasoft-lsp": "^7.9.0",
+    "dayjs": "^1.11.13"
+  },
+  "private": true
+}

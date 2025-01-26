@@ -1,0 +1,37 @@
+# Language Server Integration
+
+`khulnasoft.vim` integrates with the
+[KhulnaSoft Language Server for Code Suggestions](https://github.com/khulnasoft/editor-extensions/khulnasoft-lsp)
+by installing the `@khulnasoft/khulnasoft-lsp` package and using the `node` interpreter.
+
+## Dependencies
+
+1. Refer to `package.json` for the latest supported language server version.
+1. Refer to `package-lock.json` to verify dependency versions and checksums.
+
+## Upgrading language server version
+
+1. Install a Node version roughly matching the left most version under `nodejs` in `.tool-versions` usually through [asdf](https://asdf-vm.com).
+1. Change into this plugin's root directory.
+1. Set the `@khulnasoft/khulnasoft-lsp` dependency to the specific `MAJOR.MINOR.PATCH` version in `package.json`.
+
+   ```json
+   {
+     "dependencies": {
+       "@khulnasoft/khulnasoft-lsp": "3.10.0"
+     }
+   }
+   ```
+
+   :warning: Avoid using [open version constraints](https://github.com/khulnasoft/khulnasoft.vim/-/issues/56#note_1591643547) such as `^3.10`.
+1. Run `make package-lock.json` to install the updated dependencies.
+1. Commit changes:
+
+   ```shell
+   git commit -m 'Upgrade @khulnasoft/khulnasoft-lsp to v3.10.0' -- package.json package-lock.json
+   ```
+
+1. Create a merge request using the [Update Language Server version](https://github.com/khulnasoft/khulnasoft.vim/-/blob/main/.khulnasoft/merge_request_templates/Update%20Language%20Server%20version.md)
+   merge request template.
+1. Confirm MR pipeline tests are passing.
+1. Configure and run [local integration tests](testing.md#integration-tests).
