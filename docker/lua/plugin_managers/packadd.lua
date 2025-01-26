@@ -47,7 +47,7 @@ function M.setup()
   git_clone_plugin({
     branch = vim.env.KHULNASOFT_VIM_BRANCH or 'main',
     destination = 'site/pack/khulnasoft/start/khulnasoft.vim',
-    source = 'https://khulnasoft.com/khulnasoft-org/editor-extensions/khulnasoft.vim.git',
+    source = 'https://github.com/khulnasoft/khulnasoft.vim',
   })
 
   require('khulnasoft').setup({})
