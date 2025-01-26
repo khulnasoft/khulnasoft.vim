@@ -35,7 +35,7 @@ function CodeSuggestionsCommands.new(options)
   return instance
 end
 
--- Install the @khulnasoft/khulnasoft-lsp npm package along with any other dependencies.
+-- Install the @gitlab-org/gitlab-lsp npm package along with any other dependencies.
 -- This project's package.json and package-lock.json files which can be used to
 -- enforce version constraints and perform security scans.
 --
@@ -43,7 +43,7 @@ end
 function CodeSuggestionsCommands:install_language_server()
   local ok = self.lsp_server:is_installed()
   if ok then
-    notifier.notify('@khulnasoft/khulnasoft-lsp already installed.')
+    notifier.notify('@gitlab-org/gitlab-lsp already installed.')
     statusline.update_status_line(globals.GCS_INSTALLED)
   end
 
@@ -57,7 +57,7 @@ function CodeSuggestionsCommands:install_language_server()
 
   local lsp_path = require('khulnasoft').plugin_root()
   notifier.notify(
-    'khulnasoft.vim: Installing @khulnasoft/khulnasoft-lsp under ' .. lsp_path .. '',
+    'khulnasoft.vim: Installing @gitlab-org/gitlab-lsp under ' .. lsp_path .. '',
     vim.lsp.log_levels.DEBUG
   )
   local job_opts = { cwd = lsp_path }
@@ -70,14 +70,14 @@ function CodeSuggestionsCommands:install_language_server()
     if result.exit_code == 0 then
       statusline.update_status_line(globals.GCS_UPDATED)
       notifier.notify(
-        'khulnasoft.vim: Successfully installed @khulnasoft/khulnasoft-lsp',
+        'khulnasoft.vim: Successfully installed @gitlab-org/gitlab-lsp',
         vim.lsp.log_levels.DEBUG
       )
       return
     end
 
     notifier.notify(
-      'khulnasoft.vim: Unable to install @khulnasoft/khulnasoft-lsp please install it manually before continuing.',
+      'khulnasoft.vim: Unable to install @gitlab-org/gitlab-lsp please install it manually before continuing.',
       vim.log.levels.WARN
     )
   end)

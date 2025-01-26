@@ -21,7 +21,7 @@ local function _check_npm_ls() --{{{
   if job then
     local out = vim.json.decode(job.stdout)
     local dependencies = out and out['dependencies'] or {}
-    local package = dependencies['@khulnasoft/khulnasoft-lsp']
+    local package = dependencies['@gitlab-org/gitlab-lsp']
     local npm_install = npm('install')
     local advice = {
       string.format(
@@ -48,13 +48,13 @@ local function _check_npm_ls() --{{{
 
     if package.version and has_problems then
       vim.health.warn(
-        string.format('@khulnasoft/khulnasoft-lsp installed (v%s)', package.version),
+        string.format('@gitlab-org/gitlab-lsp installed (v%s)', package.version),
         advice
       )
     elseif package.version then
-      vim.health.ok(string.format('@khulnasoft/khulnasoft-lsp installed (v%s)', package.version))
+      vim.health.ok(string.format('@gitlab-org/gitlab-lsp installed (v%s)', package.version))
     elseif package.missing then
-      vim.health.error('@khulnasoft/khulnasoft-lsp missing', advice)
+      vim.health.error('@gitlab-org/gitlab-lsp missing', advice)
     else
       local msg = string.format('$ %s', vim.fn.join(npm_ls.cmd))
       vim.health.error(msg, advice)

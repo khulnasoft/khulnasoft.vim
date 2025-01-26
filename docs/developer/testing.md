@@ -59,13 +59,13 @@ You can run Snowplow Micro [inside of your KhulnaSoft Development Kit](https://g
 To run the Snowplow Micro container in the foreground:
 
 ```shell
-docker run --name snowplow-micro --rm -e MICRO_IGLU_REGISTRY_URL="https://khulnasoft.khulnasoft.io/iglu" -p 127.0.0.1:9091:9090 snowplow/snowplow-micro:latest
+docker run --name snowplow-micro --rm -e MICRO_IGLU_REGISTRY_URL="https://khulnasoft.github.io/iglu" -p 127.0.0.1:9091:9090 snowplow/snowplow-micro:latest
 ```
 
 Or in the background:
 
 ```shell
-docker run --name snowplow-micro -d -e MICRO_IGLU_REGISTRY_URL="https://khulnasoft.khulnasoft.io/iglu" -p 127.0.0.1:9091:9090 snowplow/snowplow-micro:latest
+docker run --name snowplow-micro -d -e MICRO_IGLU_REGISTRY_URL="https://khulnasoft.github.io/iglu" -p 127.0.0.1:9091:9090 snowplow/snowplow-micro:latest
 ```
 
 Confirm the service is running successfully:

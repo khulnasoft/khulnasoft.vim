@@ -2,7 +2,7 @@
 
 `khulnasoft.vim` integrates with the
 [KhulnaSoft Language Server for Code Suggestions](https://github.com/khulnasoft/editor-extensions/khulnasoft-lsp)
-by installing the `@khulnasoft/khulnasoft-lsp` package and using the `node` interpreter.
+by installing the `@gitlab-org/gitlab-lsp` package and using the `node` interpreter.
 
 ## Dependencies
 
@@ -13,12 +13,12 @@ by installing the `@khulnasoft/khulnasoft-lsp` package and using the `node` inte
 
 1. Install a Node version roughly matching the left most version under `nodejs` in `.tool-versions` usually through [asdf](https://asdf-vm.com).
 1. Change into this plugin's root directory.
-1. Set the `@khulnasoft/khulnasoft-lsp` dependency to the specific `MAJOR.MINOR.PATCH` version in `package.json`.
+1. Set the `@gitlab-org/gitlab-lsp` dependency to the specific `MAJOR.MINOR.PATCH` version in `package.json`.
 
    ```json
    {
      "dependencies": {
-       "@khulnasoft/khulnasoft-lsp": "3.10.0"
+       "@gitlab-org/gitlab-lsp": "3.10.0"
      }
    }
    ```
@@ -28,7 +28,7 @@ by installing the `@khulnasoft/khulnasoft-lsp` package and using the `node` inte
 1. Commit changes:
 
    ```shell
-   git commit -m 'Upgrade @khulnasoft/khulnasoft-lsp to v3.10.0' -- package.json package-lock.json
+   git commit -m 'Upgrade @gitlab-org/gitlab-lsp to v3.10.0' -- package.json package-lock.json
    ```
 
 1. Create a merge request using the [Update Language Server version](https://github.com/khulnasoft/khulnasoft.vim/-/blob/main/.khulnasoft/merge_request_templates/Update%20Language%20Server%20version.md)
