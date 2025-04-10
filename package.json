@@ -1,9 +1,27 @@
 {
   "name": "khulnasoft.vim",
   "description": "Bring your favourite DevSecOps platform to your fingertips through a Vim plugin.",
+  "main": "index.js",
   "dependencies": {
-    "@gitlab-org/gitlab-lsp": "^7.9.0",
-    "dayjs": "^1.11.13"
+    "@gitlab-org/gitlab-lsp": "^7.20.0",
+    "dayjs": "^1.11.13",
+    "csv-simple-parser": "^2.0.2",
+    "ts-node": "^10.9.2"
+  },
+  "directories": {
+    "example": "examples",
+    "test": "test"
+  },
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@types/node": "^16.18.126",
+    "typescript": "^5.8.2"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
   },
   "private": true
 }

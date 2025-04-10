@@ -1,0 +1,10 @@
+# flyctl launch added from .gitignore
+node_modules
+
+out
+**/main
+assert.debug
+debug.doom
+fly.toml
+lua
+.git

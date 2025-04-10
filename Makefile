@@ -1,68 +1,34 @@
-.PHONY: default integration_test test format lint luacheck stylua
+lua_fmt:
+	echo "===> Formatting"
+	stylua lua/ --config-path=.stylua.toml
 
-LUACHECK := $(shell command -v luacheck 2> /dev/null)
-LUACHECK_MISSING_ERROR := ERROR: luacheck is not installed, run `asdf plugin add lua ; asdf install && asdf reshim lua && luarocks install luacheck`
+lua_lint:
+	echo "===> Linting"
+	luacheck lua/ --globals vim
 
-STYLUA := $(shell command -v stylua 2> /dev/null)
-STYLUA_ERROR := ERROR: stylua is not installed, run `asdf plugin add stylua ; asdf install && asdf reshim stylua`
+lua_test:
+	echo "===> Testing"
+	nvim --headless --noplugin -u scripts/tests/minimal.vim \
+        -c "PlenaryBustedDirectory lua/khulnasoft {minimal_init = 'scripts/tests/minimal.vim'}"
 
-default:
-	@echo "The folllowing are the available make targets that can be run:\n"
-	@grep '^[^#[:space:]].*:' Makefile
+lua_clean:
+	echo "===> Cleaning"
+	rm /tmp/lua_*
 
-PLENARY_PATH ?= ~/.local/share/nvim/site/pack/vendor/start/plenary.nvim
-$(PLENARY_PATH):
-	git clone --depth 1 https://github.com/nvim-lua/plenary.nvim ${PLENARY_PATH}
+go-test:
+	echo "===> Testing"
+	go test ./pkg/v2/...
+	go test ./examples/v2/...
 
-integration_test: clean-lsp-deps | $(PLENARY_PATH)
-	@env RUN_INTEGRATION_TESTS=true nvim --clean --headless \
-		-c "source spec/init.lua" \
-		-c "PlenaryBustedDirectory $${SPEC:-spec/integration}" \
-		-c cquit
+go-relay-test:
+	echo "===> Testing"
+	go run ./pkg/v2/relay/cmd/test/main.go
 
-test: | $(PLENARY_PATH)
-	@nvim --clean --headless \
-		-c "source spec/init.lua" \
-		-c "PlenaryBustedDirectory $${SPEC:-spec}" \
-		-c cquit
+go-fmt:
+	echo "===> Format"
+	go fmt github.com/khulnasoft/...
 
-ifndef LINT_FILES
-override LINT_FILES = lua/ plugin/ spec/
-endif
+pr-ready: go-relay-test go-test go-fmt
 
-format:
-ifdef STYLUA
-	@${STYLUA} ${LINT_FILES}
-else
-	$(error "${STYLUA_MISSING_ERROR}"}
-endif
 
-lint: luacheck stylua
 
-luacheck:
-ifdef LUACHECK
-	${LUACHECK} ${LINT_FILES}
-else
-	$(error "${LUACHECK_MISSING_ERROR}")
-endif
-
-stylua:
-ifdef STYLUA
-	${STYLUA} --check ${LINT_FILES}
-else
-	$(error "${STYLUA_ERROR}")
-endif
-
-clean-lsp-deps:
-	rm -rf node_modules
-
-lint-lsp-deps: package-lock.json
-	@echo 'Checking for uncommitted changes in package.json or package-lock.json.'
-	git diff --exit-code package-lock.json package.json
-
-package.json:
-	npm install --omit=peer
-
-package-lock.json: package.json
-
-.PHONY: clean-lsp-deps package.json package-lock.json lint-lsp-deps
